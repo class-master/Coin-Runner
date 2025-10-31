@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from kivy.uix.label import Label
-from kivy.metrics import dp
-from kivy.core.window import Window
-def build_hud():
-    return Label(text="Score: 0   Energy: 100",
-                 size_hint=(1,None),height=dp(32),
-                 pos=(0, Window.height-dp(40)))
+class HUD:
+    def __init__(self, scoring_service, difficulty_service):
+        self.svc_s = scoring_service; self.svc_d = difficulty_service
+    def get_labels(self) -> dict:
+        s = self.svc_s.current; d = self.svc_d.current
+        return {"score": f"Score: {s}", "speed": f"Speed: x{d.speed:.2f} (Lv.{d.stage})"}
