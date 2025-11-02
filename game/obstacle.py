@@ -16,6 +16,11 @@ class Obj(Widget):
     def _sync(self,*a): self._r.pos=self.pos; self._r.size=self.size
     def _clr(self,*a): self._c.rgba=self.color
     # Day1: 左へ流す＆画面外でalive=False（答えは書かない）
+    def update(self, dt):
+        self.x -= self.vx * dt
+        if self.x + self.width < 0:
+            self.alive = False
+
     def tick(self, dt):
         pass
     # Day1: 右端へ再配置（答えは書かない）

@@ -53,18 +53,54 @@ class Play(Screen):
         if self.game_over and name in ('enter','numpadenter','spacebar'):
             return self._restart()
         if name in ('up','spacebar'):
-            # TODO(Day1): self.player.try_jump(P)
+            self.player.try_jump(P)
             return True
         return False
     def update(self, dt):
         if self.game_over: return
-        # TODO(Day1-2): 速度段階UP
-        # TODO(Day1-3): 重力＆地面クランプ
-        # TODO(Day1-4): スクロール＆再配置
-        # TODO(Day1-5): 当たり判定（AABB）
-        # TODO(Day1-6): HUD更新／ゲームオーバー表示
+        # 速度段階UP
+        self.t += dt
+        if int(self.t) % 10 == 0:
+            self.speed += P.SPEED_INCREMENT
+        # 重力＆地面クランプ
+        self.player.vy += P.GRAVITY * dt
+        self.player.y += self.player.vy * dt
+        if self.player.y <= GROUND_Y:
+            self.player.y = GROUND_Y
+            self.player.vy = 0
+            self.player.on_ground = True
+        # スクロール＆再配置
+        for o in self.objects:
+            o.x -= self.speed * dt
+            if o.x + o.width < 0:
+                o.x = initial_x(SPAWN_SPREAD, True)
+                o.kind = pick_kind(P.COIN_RATE)
+                o.color = [0.35,1,0.35,1] if o.kind == 'coin' else [1,0.35,0.4,1]
+                o.y = GROUND_Y if (pick_kind(0.5) == 'ob') else GROUND_Y + LOW_JUMP_H
+        # 当たり判定（AABB）
+        for o in self.objects:
+            if aabb(self.player.x, self.player.y, self.player.width, self.player.height,
+                    o.x, o.y, o.width, o.height):
+                if o.kind == 'coin':
+                    self.score += 10
+                else:
+                    self.energy -= 20
+                    if self.energy <= 0:
+                        self.game_over = True
+            o.x -= self.speed * dt
+            if o.right < 0:
+                o.x = initial_x(SPAWN_SPREAD, True)
+                o.kind = pick_kind(P.COIN_RATE)
+                o.color = [0.35,1,0.35,1] if o.kind == 'coin' else [1,0.35,0.4,1]
+                o.y = GROUND_Y if (pick_kind(0.5) == 'ob') else GROUND_Y + LOW_JUMP_H
+        # 当たり判定（AABB）
+        # HUD更新／ゲームオーバー表示
+        self.lbl.text = f"Score: {self.score}  Energy: {self.energy}"
+        if self.game_over:
+            self.lbl.text += "\nGame Over! Press Enter to restart."
         # ---- D2: ここから追加ヒント（実装は自分で） ----
         # D2-1: パララックス背景 tick（速度は self.speed * 比率）
+        self.bg_layer.scroll(self.speed * 0.2 * dt)  # 背景レイヤーの scroll メソッドを呼び出す
         # D2-2: SpawnState を使って再配置する（next_item→kind/座標/サイズ）
         # D2-3: kind に応じて色・サイズを切替（ob_low/ob_high/ob_train/coin）
         # D2-4: F1でデバッグ表示のON/OFF（時間・速度・next_x・last_kind）
