@@ -1,4 +1,21 @@
 # -*- coding: utf-8 -*-
+from kivymd.app import MDApp
+from kivy.core.window import Window
+from .config import P
+from .scenes.title import Title
+from .scenes.play import Play
+from kivy.uix.screenmanager import ScreenManager
+
+class GameApp(MDApp):
+    def build(self):
+        Window.size=(P.WINDOW_W,P.WINDOW_H)
+        sm=ScreenManager(); sm.add_widget(Title(name="title")); sm.add_widget(Play(name="play")); sm.current="title"
+        return sm
+
+if __name__=="__main__":
+    GameApp().run()
+
+# -*- coding: utf-8 -*-
 """
 =============================
 
@@ -26,7 +43,6 @@
 - 橋渡し：A（Play）で起きた出来事をB（Scoring/画面遷移）へ伝える役。
 - ScreenManager：複数の画面（Screen）を切り替えるコンテナ。
 """
-
 from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen
