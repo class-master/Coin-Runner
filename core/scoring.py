@@ -14,7 +14,48 @@ Day3〜Day5 用のスコア計算クラス。
 
 ここでは生徒が読みやすいように、最小限の実装 + コメントだけを置いている。
 実際の Day5 の作業では、このクラスを拡張してもよい。
-"""
+    今回のスコアを 0 に戻す
+    ハイスコア（best）は残る
+
+障害物をよけた瞬間
+    scoring.add_for_avoid()
+    スコアが +10（DEFAULT_AVOID_POINT）
+
+GameOver 時
+    is_new_record = scoring.register_game_over()
+
+    True  -> ハイスコア更新
+    False -> 更新なし
+
+表示（HUD / GameOver 画面）
+    scoring.current  # 今回のスコア
+    scoring.best     # ハイスコア
+
+【用語解説】
+
+class
+    設計図。
+    「スコアをどう扱うか」をまとめたもの。
+
+dataclass
+    数字を入れる箱を簡単に作る仕組み。
+    例: Score(value=10)
+
+property
+    「変数みたいに使える関数」。
+    実際は関数だが、scoring.current のように書ける。
+    読み取り専用の値として使わせたいときに便利。
+
+reset()
+    「今回のプレイを最初からやり直す」。
+
+register_game_over()
+    「ゲームが終わったことをスコアに知らせる」。
+    ベスト更新チェックを行い、True / False を返す。
+
+best（ハイスコア）
+    今までで一番良かったスコア。
+    リトライしても消えない。"""
 
 from dataclasses import dataclass
 
@@ -48,10 +89,12 @@ class ScoringService:
     def __init__(self, avoid_point: int = DEFAULT_AVOID_POINT):
         # 現在スコア用の Score インスタンス
         self._score = Score()
-        # 1回よけるごとの加点幅
-        self._avoid_point = int(avoid_point)
         # Day5:TODO ベストスコア用の変数を追加したい場合はここにフィールドを足す
         # 例: self._best = Score()
+        self._best = Score()
+        # 1回よけるごとの加点幅
+        self._avoid_point = int(avoid_point)
+       
 
     def reset(self) -> None:
         """現在スコアだけを 0 に戻す。
@@ -82,43 +125,18 @@ class ScoringService:
         return self._score.value
 
     # Day5:TODO ここに「best（ハイスコア）」関連の API を追加するアイデア
-
-    # Day6:TODO （発展）ベストスコアの「保存」と「読み込み」
-    # -----------------------------------------------------------------
-    # Day5 で best を実装できたら、Day6 では「アプリを閉じても best が残る」ようにします。
-    #
-    # ねらい：
-    # - ただの変数 best だと、アプリ終了で消えてしまう
-    # - JSON などに保存して、次回起動時に読み込むと “やり込み要素” が完成する
-    #
-    # 仕様（おすすめ）：
-    # - 保存先：プロジェクト直下の `save/best_score.json` （無ければ作る）
-    # - フォーマット例： {"best": 350}
-    #
-    # 実装の形（例）：
-    # - def load_best(self, path: str) -> None:
-    #       ファイルが無い/壊れている → best を 0 にして続行（例外で落とさない）
-    # - def save_best(self, path: str) -> None:
-    #       best を JSON に保存（ディレクトリが無ければ作る）
-    #
-    # 呼び出しタイミング（例）：
-    # - アプリ開始時（Play生成時 or Title表示時）に load_best()
-    # - GameOver確定時に register_game_over() の直後で save_best()
-    #
-    # 注意：
-    # - reset() では best を消さない（Day5の設計と一致させる）
-    # - “今回スコア” と “best” を混同しない
-    # -----------------------------------------------------------------
-
     # 例:
-    # @property
-    # def best(self) -> int:
+    @property
+    def best(self) -> int:
     #     """今までのプレイで到達した最高スコアを返す。"""
-    #     return self._best.value
+         return self._best.value
     #
-    # def register_game_over(self) -> bool:
-    #     """ゲーム終了時に呼び出し、ベスト更新なら True を返す。"""
-    #     if self._score.value > self._best.value:
-    #         self._best.value = self._score.value
-    #         return True
-    #     return False
+    def register_game_over(self) -> bool:
+    #"""
+    # ゲーム終了時に呼び出し
+    # 今回のスコアがベスト更新なら True を返す。
+    # """
+       if self._score.value > self._best.value:
+             self._best.value = self._score.value
+             return True
+       return False
