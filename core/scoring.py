@@ -82,6 +82,34 @@ class ScoringService:
         return self._score.value
 
     # Day5:TODO ここに「best（ハイスコア）」関連の API を追加するアイデア
+
+    # Day6:TODO （発展）ベストスコアの「保存」と「読み込み」
+    # -----------------------------------------------------------------
+    # Day5 で best を実装できたら、Day6 では「アプリを閉じても best が残る」ようにします。
+    #
+    # ねらい：
+    # - ただの変数 best だと、アプリ終了で消えてしまう
+    # - JSON などに保存して、次回起動時に読み込むと “やり込み要素” が完成する
+    #
+    # 仕様（おすすめ）：
+    # - 保存先：プロジェクト直下の `save/best_score.json` （無ければ作る）
+    # - フォーマット例： {"best": 350}
+    #
+    # 実装の形（例）：
+    # - def load_best(self, path: str) -> None:
+    #       ファイルが無い/壊れている → best を 0 にして続行（例外で落とさない）
+    # - def save_best(self, path: str) -> None:
+    #       best を JSON に保存（ディレクトリが無ければ作る）
+    #
+    # 呼び出しタイミング（例）：
+    # - アプリ開始時（Play生成時 or Title表示時）に load_best()
+    # - GameOver確定時に register_game_over() の直後で save_best()
+    #
+    # 注意：
+    # - reset() では best を消さない（Day5の設計と一致させる）
+    # - “今回スコア” と “best” を混同しない
+    # -----------------------------------------------------------------
+
     # 例:
     # @property
     # def best(self) -> int:
