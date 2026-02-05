@@ -17,11 +17,22 @@ GameOver 画面用のロジック雛形。
 
 
 class GameOverScene:
-    def __init__(self, navigator):
+    def __init__(self, navigator, scoring_service, last_score):
         # 画面遷移の制御を行うオブジェクト。
         # Day1〜Day3 時点では「タイトルへ戻る or ゲームをリトライする」だけを担当する。
         self.nav = navigator
-        # Day5:TODO 必要ならここに「直前スコア」「ベスト更新フラグ」などのフィールドを追加してよい。
+
+        # Day5: スコア管理用サービス
+        self.scoring = scoring_service
+
+        # Day5: 直前のプレイスコア
+        self.last_score = last_score
+
+        # Day5: NEW RECORD 判定フラグ
+        # register_game_over は
+        #   True  → ベスト更新
+        #   False → 更新なし
+        self.is_new_record = self.scoring.register_game_over(last_score)
 
         # Day6:TODO （発展）GameOver で “NEW RECORD!” を出す + 保存する
         # -----------------------------------------------------------------
